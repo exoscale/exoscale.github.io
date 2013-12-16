@@ -72,6 +72,9 @@ app.controller("GithubController", ['$scope', 'github', function(scope, github) 
     };
 
     github.getUser(config.username).success(function(data) {
+        if (data.blog && data.blog.slice(0, 4) != 'http') {
+            data.blog = 'http://' + data.blog;
+        }
         scope.user = data;
     });
 
