@@ -8,6 +8,9 @@ app.factory('github', ['$http', '$q', function(http, q) {
         getUser: function(username) {
             return http.get(api_root + '/users/' + username);
         },
+        getMembers: function(username) {
+            return http.get(api_root + '/orgs/' + username + '/members');
+        },
         getRepos: function(username) {
             var repos_p = q.defer();
             var url = api_root + '/users/' + username + '/repos';
@@ -72,9 +75,17 @@ app.controller("GithubController", ['$scope', 'github', function(scope, github) 
         scope.user = data;
     });
 
+    github.getMembers(config.username).success(function(data) {
+        scope.members = data.length;
+    });
+
     var repos = [];
 
     var got_repos = function(data) {
+        data = _.filter(data, function(repo) {
+            return !repo.fork;
+        });
+
         repos = repos.concat(data);
 
         scope.recent = _.chain(repos)
@@ -88,9 +99,7 @@ app.controller("GithubController", ['$scope', 'github', function(scope, github) 
             .reverse()
             .value()
 
-        scope.source_repos = _.filter(repos, function(repo) {
-            return !repo.fork;
-        }).length;
+        scope.source_repos = repos.length;
     };
     var got_repo = function(data) {
         got_repos([data]);
