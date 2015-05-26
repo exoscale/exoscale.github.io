@@ -86,7 +86,9 @@ app.controller("GithubController", ['$scope', 'github', function(scope, github) 
 
     var got_repos = function(data) {
         data = _.filter(data, function(repo) {
-            return !repo.fork;
+            return !repo.fork &&
+                !(config.filterOut &&
+                  new RegExp(config.filterOut).test(repo.name));
         });
 
         repos = repos.concat(data);
